@@ -1,0 +1,47 @@
+#!/usr/bin/env zsh
+
+
+setopt NULL_GLOB
+
+# Root of your zsh config system
+CONFIG_DIR="${ZSHCONFIG_DIR:-$HOME/.dotfiles/zsh}"
+
+if [[ ! -d "$CONFIG_DIR" ]]; then
+  echo "❌ Config directory not found: $CONFIG_DIR"
+  exit 1
+fi
+
+files=("$CONFIG_DIR"/*.zsh)
+
+if [[ ${#files[@]} -eq 0 ]]; then
+  echo "❌ No .zsh files found in $CONFIG_DIR"
+  exit 1
+fi
+
+echo "📂 Zsh Dotfiles:"
+echo ""
+
+i=1
+for f in "${files[@]}"; do
+  echo "  $i) ${f:t}"
+  ((i++))
+done
+
+echo ""
+read "choice?👉 Select file (1-${#files[@]}): "
+
+if ! [[ "$choice" =~ '^[0-9]+$' ]]; then
+  echo "❌ Invalid input"
+  exit 1
+fi
+
+if (( choice < 1 || choice > ${#files[@]} )); then
+  echo "❌ Out of range"
+  exit 1
+fi
+
+selected="${files[$choice]}"
+
+echo ""
+echo "✏️ Opening: ${selected:t}"
+nano "$selected"

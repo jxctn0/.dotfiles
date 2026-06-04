@@ -23,6 +23,7 @@ if [[ -n "$CONTAINER_ID" ]]; then
     case "$ID" in
       debian)  DISTRO_ICON="" ;;
       ubuntu)  DISTRO_ICON="" ;;
+      pop_os)   DISTRO_ICON="" ;;
       fedora)  DISTRO_ICON="" ;;
       arch)    DISTRO_ICON="" ;;
       *)       DISTRO_ICON="" ;;
@@ -49,3 +50,4 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
   [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
 fi
+
