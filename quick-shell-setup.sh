@@ -17,6 +17,12 @@ install_mac() {
 
   echo "📦 Installing core tools (brew)..."
   brew install git fzf ripgrep fd eza lazygit tmux btop zoxide
+
+  echo "Installing Brewfile"
+  wget https://raw.githubusercontent.com/jxctn0/brewdump/refs/heads/main/Brewfile?token=GHSAT0AAAAAAD6YKXXKQ6Y3TDW7N25XZBC22REQFNQ -O "$(pwd)/Brewfile"
+  brew bundle
+  rm Brewfile
+
 }
 
 install_linux() {

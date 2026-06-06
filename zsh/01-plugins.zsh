@@ -4,6 +4,7 @@ if command -v zinit >/dev/null 2>&1; then
   zinit light changyuheng/zsh-interactive-cd
   zinit light zsh-users/zsh-completions
   zinit light zsh-users/zsh-history-substring-search
+  zinit light starship/starship
 else
   echo "Zinit not found, skipping plugin loading."
   echo "To install Zinit, run:"
