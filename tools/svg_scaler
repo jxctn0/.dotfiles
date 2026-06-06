@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Check if an input file was provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <path_to_svg_file> [output_directory]"
+    exit 1
+fi
+
+SVG_FILE="$1"
+# Default output directory to "output_sizes" if not specified
+OUTPUT_DIR="${2:-output_sizes}"
+
+# Ensure the input file exists
+if [ ! -f "$SVG_FILE" ]; then
+    echo "Error: File '$SVG_FILE' not found."
+    exit 1
+fi
+
+# Create the output directory
+mkdir -p "$OUTPUT_DIR"
+
+# Get the base name of the file without the extension
+BASE_NAME=$(basename "$SVG_FILE" .svg)
+
+echo "Scaling '$SVG_FILE' into '$OUTPUT_DIR/'..."
+echo "----------------------------------------"
+
+# Starting size
+SIZE=1024
+
+# Loop until size drops below 16
+while [ $SIZE -ge 16 ]; do
+    OUTPUT_FILE="$OUTPUT_DIR/${BASE_NAME}_${SIZE}x${SIZE}.png"
+    
+    echo "Generating ${SIZE}x${SIZE}..."
+    
+    # --- METHOD 1: Using Inkscape (Recommended for crisp SVG rendering) ---
+    if command -v inkscape >/dev/null 2>&1; then
+        inkscape "$SVG_FILE" -w $SIZE -h $SIZE -o "$OUTPUT_FILE" >/dev/null 2>&1
+        
+    # --- METHOD 2: ImageMagick Fallback ---
+    elif command -v convert >/dev/null 2>&1; then
+        convert -background none "$SVG_FILE" -resize ${SIZE}x${SIZE} "$OUTPUT_FILE"
+        
+    else
+        echo "Error: Neither 'inkscape' nor 'imagemagick' (convert) is installed."
+        echo "Please install one of them to run this script."
+        exit 1
+    fi
+    
+    # Halve the size for the next iteration
+    SIZE=$((SIZE / 2))
+done
+
+echo "----------------------------------------"
+echo "Done! Images generated in: $OUTPUT_DIR"

@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
-
+# Shell Config Tool - Edit config files with default editor
 
 setopt NULL_GLOB
 
-# Root of your zsh config system
+# Root of your config system
 CONFIG_DIR="${ZSHCONFIG_DIR:-$HOME/.dotfiles/zsh}"
 
 if [[ ! -d "$CONFIG_DIR" ]]; then
@@ -30,7 +30,7 @@ done
 echo ""
 read "choice?👉 Select file (1-${#files[@]}): "
 
-if ! [[ "$choice" =~ '^[0-9]+$' ]]; then
+if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
   echo "❌ Invalid input"
   exit 1
 fi
@@ -44,4 +44,4 @@ selected="${files[$choice]}"
 
 echo ""
 echo "✏️ Opening: ${selected:t}"
-nano "$selected"
+${EDITOR:-nano} "$selected"

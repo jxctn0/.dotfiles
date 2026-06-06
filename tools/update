@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# List of commands to check for existence
+PACKAGE_MANAGERS=(
+    "apt" "yum" "dnf" "rpm-ostree" "pacman" "paru" "yay" 
+    "apk" "zypper" "emerge" "xbps" "nix" "flatpak" 
+    "snap" "pipx" "brew" "port" "mas"
+)
+
+LOCAL_PACKAGE_MANAGERS=() # Array to hold detected local package managers
+
+# Detect which package managers are installed
+function getLocalPackageManagers() {
+    for manager in "${PACKAGE_MANAGERS[@]}"; do
+        local cmd="$manager"
+
+        if command -v "$cmd" &> /dev/null; then
+            LOCAL_PACKAGE_MANAGERS+=("$manager")
+        fi
+    done
+    
+    echo "Detected Package Managers: ${LOCAL_PACKAGE_MANAGERS[*]}"
+    echo "------------------------------------------------"
+}
+
+# Run the appropriate update commands for detected managers
+function updatePackageManagers() {
+    for manager in "${LOCAL_PACKAGE_MANAGERS[@]}"; do
+        echo "Processing $manager..."
+        
+        case "$manager" in
+            "apt")
+                sudo apt update && sudo apt upgrade -y
+                ;;
+            "yum")
+                sudo yum update -y
+                ;;
+            "dnf")
+                sudo dnf upgrade -y
+                ;;
+            "rpm-ostree")
+                rpm-ostree upgrade
+                ;;
+            "pacman")
+                sudo pacman -Syu --noconfirm
+                ;;
+            "paru"|"yay")
+                "$manager" -Syu --noconfirm
+                ;;
+            "apk")
+                sudo apk update && sudo apk upgrade
+                ;;
+            "zypper")
+                sudo zypper refresh && sudo zypper update -y
+                ;;
+            "emerge")
+                sudo emerge --sync && sudo emerge --update --deep --with-bdeps=y @world
+                ;;
+            "xbps")
+                sudo xbps-install -Syu
+                ;;
+            "nix")
+                nix-channel --update && nix-env -u
+                ;;
+            "flatpak")
+                flatpak update -y
+                ;;
+            "snap")
+                sudo snap refresh
+                ;;
+            "pipx")
+                pipx upgrade-all
+                ;;
+            "brew")
+                brew update && brew upgrade
+                ;;
+            "port")
+                sudo port selfupdate && sudo port upgrade outdated
+                ;;
+            "mas")
+                mas upgrade
+                ;;
+            *)
+                echo "Unknown manager: $manager"
+                ;;
+        esac
+        echo "------------------------------------------------"
+    done
+}
+
+# Main function to execute the update process
+function main() {
+    getLocalPackageManagers
+    if [ ${#LOCAL_PACKAGE_MANAGERS[@]} -eq 0 ]; then
+        echo "No supported package managers found on this system."
+        exit 1
+    fi
+    updatePackageManagers
+}
+
+# Execute the main function
+main

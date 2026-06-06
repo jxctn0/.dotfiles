@@ -1,15 +1,31 @@
 # macOS only config
 
-command -v brew >/dev/null && eval "$(brew shellenv)"
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
 
-[[ -f /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme ]] && \
+# Load Powerlevel10k if installed via Homebrew
+if [[ -f /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme ]]; then
+  source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
+elif [[ -f /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme ]]; then
   source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
+fi
 
-[[ -f /usr/local/opt/zinit/zinit.zsh ]] && \
+# Load Zinit if installed via Homebrew
+if [[ -f /opt/homebrew/opt/zinit/zinit.zsh ]]; then
+  source /opt/homebrew/opt/zinit/zinit.zsh
+elif [[ -f /usr/local/opt/zinit/zinit.zsh ]]; then
   source /usr/local/opt/zinit/zinit.zsh
+fi
 
 export NVM_DIR="$HOME/.nvm"
-[[ -s "/usr/local/opt/nvm/nvm.sh" ]] && source "/usr/local/opt/nvm/nvm.sh"
+if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
+  source "/opt/homebrew/opt/nvm/nvm.sh"
+elif [[ -s "/usr/local/opt/nvm/nvm.sh" ]]; then
+  source "/usr/local/opt/nvm/nvm.sh"
+fi
 
 export ANDROID_HOME="$HOME/Library/Android/sdk"
 export PATH="$ANDROID_HOME/platform-tools:$PATH"

@@ -1,6 +1,6 @@
 setopt CORRECT
 
-export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.local/bin:$HOME/.dotfiles/tools"
 
 # Container detection (Distrobox-safe)
 if [[ -n "$CONTAINER_ID" ]]; then

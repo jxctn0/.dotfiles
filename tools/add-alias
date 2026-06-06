@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+import os
+import json
+import argparse
+import sys
+from pathlib import Path
+
+ALIASES_FILE = os.path.join(os.path.expanduser("~"), ".dotfiles", "resources", "aliases.json")
+
+
+def load_aliases():
+    p = Path(ALIASES_FILE)
+    if not p.parent.exists():
+        p.parent.mkdir(parents=True, exist_ok=True)
+    if not p.exists():
+        return {}
+    try:
+        with p.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def save_aliases(d):
+    p = Path(ALIASES_FILE)
+    with p.open("w", encoding="utf-8") as f:
+        json.dump(d, f, indent=4, sort_keys=True)
+        f.write("\n")
+
+
+def add_alias(alias, command, force=False):
+    aliases = load_aliases()
+    if alias in aliases and not force:
+        print(f"Alias '{alias}' already exists. Use --force to overwrite.", file=sys.stderr)
+        return 1
+    aliases[alias] = command
+    save_aliases(aliases)
+    print(f"Added alias '{alias}': {command}")
+    return 0
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Add an alias to ~/.dotfiles/resources/aliases.json")
+    parser.add_argument("--list", help="Show all availible aliases", action="store_true")
+    parser.add_argument("alias", help="Alias name", nargs="?")
+    parser.add_argument("command", help="Command for the alias (wrap in quotes if it contains spaces)", nargs="?")
+    parser.add_argument("-f", "--force", action="store_true", help="Overwrite existing alias")
+    
+    args = parser.parse_args()
+    if not args.list and (args.alias is None or args.command is None):
+        parser.error("the following arguments are required: alias, command")
+    return args
+
+
+def main():
+    args = parse_args()
+    if args.list:
+        aliases = load_aliases()
+        for alias, command in aliases.items():
+            print(f"{alias}: {command}")
+        return 0
+    return add_alias(args.alias, args.command, args.force)
+
+
+if __name__ == "__main__":
+    sys.exit(main() or 0)
+
