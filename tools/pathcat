@@ -1,0 +1,16 @@
+#!/bin/bash
+# Pathcat - Prints out the PATH variable in a more readable format, with each path delimited by ", " or -d
+
+if [ "$1" = "-d" ]; then
+  IFS=':' read -ra PATH_ARRAY <<< "$PATH"
+  printf "%s" "${PATH_ARRAY[0]}"
+  for ((i = 1; i < ${#PATH_ARRAY[@]}; i++)); do
+    printf ", %s" "${PATH_ARRAY[i]}"
+  done
+  echo
+else
+  IFS=':' read -ra PATH_ARRAY <<< "$PATH"
+  for path in "${PATH_ARRAY[@]}"; do
+    echo "$path"
+  done
+fi
