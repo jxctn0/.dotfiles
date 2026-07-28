@@ -1,7 +1,8 @@
 #!/bin/bash
-# Downloads the repository and sets up the files and installs brew, and then other dependancies
+set -euo pipefail
+# Downloads the repository and sets up the files and installs brew, and then other dependencies
 
-DEPENDANCIES=(
+DEPENDENCIES=(
     git
     fzf
     ripgrep
@@ -27,9 +28,9 @@ install_homebrew() {
   echo "Homebrew installed successfully."
 }
 
-install_dependancies() {
-    echo "Installing core tools ($PACKAGE_MANAGER)..."
-    $PACKAGE_MANAGER_CMD "${DEPENDANCIES[@]}"
+install_dependencies() {
+    echo "Installing core tools ($PACKAGE_MANAGER_CMD)..."
+    $PACKAGE_MANAGER_CMD "${DEPENDENCIES[@]}"
 }
 
 main() {
@@ -40,11 +41,12 @@ main() {
     if ! command -v brew >/dev/null 2>&1; then
       install_homebrew
     fi
-    install_dependancies
+    install_dependencies
   elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     echo "Linux detected"
-    # Ask if user wants to install homebrew on Linux
-    if ! command -v brew >/dev/null 2>&1; then
+    if command -v brew >/dev/null 2>&1; then
+      PACKAGE_MANAGER_CMD="brew install"
+    else
       read -p "Homebrew is not installed. Do you want to install it? (y/n) " -n 1 -r
       echo
       if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -59,12 +61,14 @@ main() {
         elif command -v pacman >/dev/null 2>&1; then
             PACKAGE_MANAGER_CMD="sudo pacman -S --noconfirm"
         else
-            echo "!!! Unsupported package manager. Please install the required packages manually before running this script again: ${DEPENDANCIES[*]}"
+            echo "!!! Unsupported package manager. Please install the required packages manually before running this script again: ${DEPENDENCIES[*]}"
             exit 1
         fi
-    install_dependancies
+      fi
+    fi
+    install_dependencies
   else
-    echo "!!! Unsupported operating system. Please install the required packages manually before running this script again: ${DEPENDANCIES[*]}"
+    echo "!!! Unsupported operating system. Please install the required packages manually before running this script again: ${DEPENDENCIES[*]}"
     exit 1
   fi
 
