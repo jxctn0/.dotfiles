@@ -1,0 +1,5 @@
+#!/bin/sh
+PROMPT_PROVIDER="starship" #^ make sure it's in the shell's prompt_providers dir
+NERDFONT_ENABLED=true #^ Set to false to disable nerd font icons
+EMOJI_FALLBACK=true #^ Set to false to disable emoji fallback (will use text instead of emojis if true and nerd fonts are not available)
+HOMEBREW_NO_UPDATE_REPORT_NEW=true #^ Don't show bash updates

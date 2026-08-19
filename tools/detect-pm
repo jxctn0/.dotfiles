@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+### package_manager_detector.py
+
+import json
+import os
+import shutil
+from pathlib import Path
+
+#: load_definitions
+def load_definitions(config_path="package_managers.json"):
+    #? Load package manager definitions from the JSON configuration
+    #= file_path = Path(config_path)
+    file_path = Path(config_path)
+    
+    if not file_path.is_file():
+        #^ File existence check before reading
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        #= data = json.load(f)
+        data = json.load(f)
+        return data
+
+#: detect_package_manager
+def detect_package_manager(config_path="package_managers.json"):
+    #? Evaluate system environment against JSON package manager definitions
+    #= definitions = load_definitions(config_path)
+    definitions = load_definitions(config_path)
+
+    for pm_id, pm_data in definitions.items():
+        #= binary = pm_data.get("detect_command")
+        binary = pm_data.get("detect_command")
+
+        #? Verify executable existence on system PATH
+        if shutil.which(binary):
+            #= manager_info = pm_data
+            manager_info = pm_data
+            return manager_info
+
+    #^ Fallback when no recognised package manager is found on the system
+    return {
+        "command": "unknown",
+        "install": "unknown",
+        "update": "unknown",
+        "list": "unknown"
+    }
+
+#: write_env_variables
+def write_env_variables(pm_info):
+    #? Determine the current shell environment to assign the correct file extension
+    #= shell_env = os.environ.get("SHELL", "/bin/sh")
+    shell_env = os.environ.get("SHELL", "/bin/sh")
+    
+    #= shell_ext = shell_env.split("/")[-1]
+    shell_ext = shell_env.split("/")[-1]
+    
+    #= output_file = f"00-variables.{shell_ext}"
+    output_file = f"00-variables.{shell_ext}"
+    
+    #? Write the correctly formatted export commands to the variables file
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(f"export PKG_CMD=\"{pm_info['command']}\"\n")
+        f.write(f"export PKG_INSTALL=\"{pm_info['install']}\"\n")
+        f.write(f"export PKG_UPDATE=\"{pm_info['update']}\"\n")
+        f.write(f"export PKG_LIST=\"{pm_info['list']}\"\n")
+        
+    print(f"Environment variables successfully written to {output_file}")
+
+if __name__ == "__main__":
+    #$$ python3 package_manager_detector.py
+    #= pm = detect_package_manager()
+    pm = detect_package_manager()
+    write_env_variables(pm)

@@ -1,17 +1,17 @@
-#!/usr/bin/zsh
-## 00-path.zsh
+#!/bin/bash
+## 00-path.bash
 
-## Adds paths from pathrc to PATH, LD_LIBRARY_PATH, and MANPATH
-#? pathrc is a list of paths, one per line
+# Adds paths from pathrc to PATH, LD_LIBRARY_PATH, and MANPATH
+# pathrc is a list of paths, one per line
 
 # Ensure an absolute path is used so it works regardless of where the shell is launched
-PATHRC_FILE="${DOTFILES:-$HOME/.dotfiles/zsh}/pathrc"
+PATHRC_FILE="${DOTFILES:-$HOME/.dotfiles/bash}/pathrc"
 
 if [[ -f "$PATHRC_FILE" ]]; then
-  #? The '|| [[ -n "$line" ]]' ensures the last line is read even if it lacks a newline character
+  # The '|| [[ -n "$line" ]]' ensures the last line is read even if it lacks a newline character
   while IFS= read -r line || [[ -n "$line" ]]; do
     
-    # Remove leading and trailing whitespace
+    #? Remove leading and trailing whitespace
     line="${line#"${line%%[![:space:]]*}"}"
     line="${line%"${line##*[![:space:]]}"}"
 
