@@ -1,19 +1,19 @@
 #!/bin/bash
 set -euo pipefail
-# Downloads the repository and sets up the files and installs brew, and then other dependencies
+## Downloads the repository and sets up the files and installs brew, and then other dependencies
 
 DOTROOT="$HOME/.dotfiles"
 
 DEPENDENCIES=(
-git
-fzf
-ripgrep
-tmux
-htop
-btop
-unzip
-wget
-curl
+    git
+    fzf
+    ripgrep
+    tmux
+    htop
+    btop
+    unzip
+    wget
+    curl
 )
 
 package_command_for() {
@@ -28,11 +28,13 @@ PACKAGE_MANAGER_CMD=""
 download_repo() {
     echo "Downloading repository..."
     if [[ ! -d "$DOTROOT" ]]; then
-        git clone https://github.com/jxctn0/.dotfiles
+        git clone https://github.com/jxctn0/.dotfiles "$DOTROOT"
         cd "$DOTROOT"
-    elif [[ "$(git -C "$DOTROOT" remote get-url origin 2>/dev/null)" <> "https://github.com/jxctn0/.dotfiles" ] & ["$(ls -A $DOTROOT)"]]; then
-        echo "Error! $(pwd $DOTROOT) is not this repo! Fix it and try again"
-
+    elif [[ "$(git -C "$DOTROOT" remote get-url origin 2>/dev/null)" != "https://github.com/jxctn0/.dotfiles" && -n "$(ls -A "$DOTROOT" 2>/dev/null)" ]]; then
+        echo "Error! $DOTROOT is not this repo! Fix it and try again."
+        exit 1
+    else
+        cd "$DOTROOT"
     fi
 }
 
@@ -42,7 +44,7 @@ install_homebrew() {
     echo "Homebrew installed successfully."
 }
 
-install_dependencies(pm) {
+install_dependencies() {
     local missing=()
 
     for dep in "${DEPENDENCIES[@]}"; do
@@ -64,7 +66,7 @@ install_dependencies(pm) {
 
 add_nano_improvements() {
     echo "Installing Nano Syntax highlighting and extras"
-    cd "$($DOTFILES)/resources"
+    cd "$DOTROOT/resources"
     git clone https://github.com/scopatz/nanorc
 }
 
@@ -86,29 +88,30 @@ main() {
             echo
             if [[ $REPLY =~ ^[Yy]$ ]]; then
                 install_homebrew
-                read -p "Homebrew is now installed. Do you want to use it as default package manager, or use system package manager?" -n 1 -r
+                read -p "Homebrew is now installed. Do you want to use it as default package manager? (y/n) " -n 1 -r
+                echo
                 if [[ $REPLY =~ ^[Yy]$ ]]; then
                     PACKAGE_MANAGER_CMD="brew install"
                     USE_SYS_PM=false
+                else
+                    USE_SYS_PM=true
                 fi
             else
                 echo "Skipping Homebrew installation - Using system package manager instead."
                 USE_SYS_PM=true
             fi
 
-            if [[ $USE_SYS_PM = true]] then;
-                if command -v apt >/dev/null 2>&1; then # Check Debian/Ubuntu
-                    if [[ "$OSTYPE" == *"android"* ]]; then # Check Android Termux
+            if [[ "$USE_SYS_PM" == true ]]; then
+                if command -v apt >/dev/null 2>&1; then #? Check Debian/Ubuntu
+                    if [[ "$OSTYPE" == *"android"* ]]; then #? Check Android Termux
                         PACKAGE_MANAGER_CMD="pkg install -y"
                     else
                         PACKAGE_MANAGER_CMD="sudo apt install -y"
                     fi
-                elif command -v dnf >/dev/null 2>&1; then # Check RHEL/Fedora/Rocky
+                elif command -v dnf >/dev/null 2>&1; then #? Check RHEL/Fedora/Rocky
                     PACKAGE_MANAGER_CMD="sudo dnf install -y"
-                elif command -v yay >/dev/null 2>&1; then
-                    PACKAGE_MANAGER_CMD="sudo yay -S --noconfirm"
-                elif command -v pacman >/dev/null 2>&1; then
-                    PACKAGE_MANAGER_CMD="sudo pacman -S --noconfirm"
+                elif command -v yay >/dev/null 2>&1; then #? Check Archish distros
+                    PACKAGE_MANAGER_CMD="yay -S --noconfirm"
                 elif command -v pacman >/dev/null 2>&1; then
                     PACKAGE_MANAGER_CMD="sudo pacman -S --noconfirm"
                 else
@@ -121,18 +124,21 @@ main() {
         echo "!!! Unsupported operating system. Please install the required packages manually before running this script again: ${DEPENDENCIES[*]}"
         exit 1
     fi
+    
     install_dependencies
-
     download_repo
 
     # link the files to the home directory
     echo "Linking rc files to home directory..."
     mv "$HOME/.zshrc" "$HOME/.zshrc.bak" 2>/dev/null || true
     mv "$HOME/.bashrc" "$HOME/.bashrc.bak" 2>/dev/null || true
-    ln -sfn "$PWD/zsh/.zshrc" "$HOME/.zshrc"
-    ln -sfn "$PWD/bash/.bashrc" "$HOME/.bashrc"
+    ln -sfn "$DOTROOT/zsh/.zshrc" "$HOME/.zshrc"
+    ln -sfn "$DOTROOT/bash/.bashrc" "$HOME/.bashrc"
 
-    local shell_rc="~/.$(SHELL)rc"
+    local shell_name
+    shell_name=$(basename "$SHELL")
+    local shell_rc="~/.${shell_name}rc"
+    
     if [[ -n "${BASH_VERSION-}" ]]; then
         shell_rc="~/.bashrc"
     fi
