@@ -2,3 +2,4 @@
 /usr/local/opt/ccache/libexec
 ~/.antigravity-ide/antigravity-ide/bin
 /usr/local/opt/unzip/bin
+/usr/local/opt/libtool/libexec/gnubin:$PATH
