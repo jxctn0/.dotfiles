@@ -24,7 +24,7 @@ def main():
     alias_lines.append(
         f'alias zconf="{os.path.expanduser("~")}/.dotfiles/zsh/tools/zshconfig"'
     )
-    alias_lines.append('alias z-refresh="source ~/.zshrc"')
+    alias_lines.append('alias zsrc="source ~/.zshrc"')
 
     app_dirs = ["/Applications", os.path.expanduser("~/Applications")]
 

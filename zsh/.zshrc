@@ -20,5 +20,3 @@ for file in "$DOTFILES"/[0-9]*-*.zsh(N); do
   n=$((n + 1))
 done
 echo "Sourced $n files from $DOTFILES"
-
-PATH="$PATH:/usr/local/opt/ffmpeg-full/bin"

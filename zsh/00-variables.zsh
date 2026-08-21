@@ -3,3 +3,4 @@ export PROMPT_PROVIDER="starship.zsh" # | starship.zsh | spaceship-pure.zsh etc 
 export NERDFONT_ENABLED=true # Set to false to disable nerd font icons
 export EMOJI_FALLBACK=true # Set to false to disable emoji fallback (will use text instead of emojis if true and nerd fonts are not available)
 export HOMEBREW_NO_UPDATE_REPORT_NEW=true
+export ZSH_INTERACTIVE_CD_COMMAND="fd --type d | fzf --preview 'eza --icons --tree --level=2 {}'"

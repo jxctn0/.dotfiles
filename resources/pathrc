@@ -5,3 +5,4 @@ $HOME/.antigravity-ide/antigravity-ide/bin
 /usr/local/opt/libtool/libexec/gnubin:$PATH
 $HOME/.cargo/env
 $HOME/.dotfiles
+/usr/local/opt/ffmpeg-full/bin
