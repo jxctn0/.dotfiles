@@ -5,15 +5,15 @@ set -euo pipefail
 DOTROOT="$HOME/.dotfiles"
 
 DEPENDENCIES=(
-    git
-    fzf
-    ripgrep
-    tmux
-    htop
-    btop
-    unzip
-    wget
-    curl
+git
+fzf
+ripgrep
+tmux
+htop
+btop
+unzip
+wget
+curl
 )
 
 package_command_for() {
@@ -70,6 +70,29 @@ add_nano_improvements() {
     git clone https://github.com/scopatz/nanorc
 }
 
+install_extras() {
+    echo "Installing Starship"
+    curl -sS https://starship.rs/install.sh | sh
+    echo "--- DONE"
+    echo "Installing Zinit"
+    bash -c "$(curl --fail --show-error --silent --location https://raw.githubusercontent.com/zdharma-continuum/zinit/HEAD/scripts/install.sh)"
+    echo "--- DONE"
+    echo "Installing Zinit plugins"
+    zinit light zsh-users/zsh-autosuggestions
+    zinit light zsh-users/zsh-syntax-highlighting
+    zinit light changyuheng/zsh-interactive-cd
+    zinit light zsh-users/zsh-completions
+    zinit light zsh-users/zsh-history-substring-search
+    zinit light starship/starship
+    echo "--- DONE"
+}
+
+setup_pyvenv() {
+    # This sets up a Python virtual env for the user to use to install any random packages
+    python3 -m venv "$DOTHOME/.userpyvenv"
+    add-alias upip $DOTHOME/.userpyvenv/bin/python3
+}
+
 main() {
     echo "Detecting system..."
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -102,15 +125,15 @@ main() {
             fi
 
             if [[ "$USE_SYS_PM" == true ]]; then
-                if command -v apt >/dev/null 2>&1; then #? Check Debian/Ubuntu
-                    if [[ "$OSTYPE" == *"android"* ]]; then #? Check Android Termux
+                if command -v apt >/dev/null 2>&1; then # ? Check Debian/Ubuntu
+                    if [[ "$OSTYPE" == *"android"* ]]; then # ? Check Android Termux
                         PACKAGE_MANAGER_CMD="pkg install -y"
                     else
                         PACKAGE_MANAGER_CMD="sudo apt install -y"
                     fi
-                elif command -v dnf >/dev/null 2>&1; then #? Check RHEL/Fedora/Rocky
+                elif command -v dnf >/dev/null 2>&1; then # ? Check RHEL/Fedora/Rocky
                     PACKAGE_MANAGER_CMD="sudo dnf install -y"
-                elif command -v yay >/dev/null 2>&1; then #? Check Archish distros
+                elif command -v yay >/dev/null 2>&1; then # ? Check Archish distros
                     PACKAGE_MANAGER_CMD="yay -S --noconfirm"
                 elif command -v pacman >/dev/null 2>&1; then
                     PACKAGE_MANAGER_CMD="sudo pacman -S --noconfirm"
@@ -124,11 +147,13 @@ main() {
         echo "!!! Unsupported operating system. Please install the required packages manually before running this script again: ${DEPENDENCIES[*]}"
         exit 1
     fi
-    
+
     install_dependencies
     download_repo
+    install_extras
+    setup_pyvenv
 
-    # link the files to the home directory
+    # ? link the files to the home directory - this overwrites anyhting changed by the install_extras function, keep this in mind!
     echo "Linking rc files to home directory..."
     mv "$HOME/.zshrc" "$HOME/.zshrc.bak" 2>/dev/null || true
     mv "$HOME/.bashrc" "$HOME/.bashrc.bak" 2>/dev/null || true
@@ -138,10 +163,11 @@ main() {
     local shell_name
     shell_name=$(basename "$SHELL")
     local shell_rc="~/.${shell_name}rc"
-    
+
     if [[ -n "${BASH_VERSION-}" ]]; then
         shell_rc="~/.bashrc"
     fi
+
 
     echo "Setup complete! Run 'source $shell_rc' to refresh"
 }

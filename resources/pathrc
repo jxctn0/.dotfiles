@@ -1,6 +1,8 @@
+#!/bin/sh
+
 /usr/local/bin/go
 /usr/local/opt/ccache/libexec
-$HOME/.antigravity-ide/antigravity-ide/bin
+"$HOME"/.antigravity-ide/antigravity-ide/bin
 /usr/local/opt/unzip/bin
 /usr/local/opt/libtool/libexec/gnubin:$PATH
 $HOME/.cargo/env

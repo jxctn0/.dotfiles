@@ -1,4 +1,4 @@
 {
-    "ll": "ls -lah",
-    ""
+    "open": "xdg-open",
+    "code": "codium"
 }

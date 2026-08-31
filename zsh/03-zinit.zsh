@@ -1,25 +1,3 @@
-#!/usr/bin/zsh
-# =========================
-# Zsh entry point
-# =========================
-
-export DOTFILES="$HOME/.dotfiles/zsh"
-
-
-# Load OS-specific config
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    [[ -f "$DOTFILES/macos.zsh" ]] && source "$DOTFILES/macos.zsh"
-else
-    [[ -f "$DOTFILES/linux.zsh" ]] && source "$DOTFILES/linux.zsh"
-fi
-
-# Get name to each file, filter out ones that dont start with a number, source by number i.e. 00-zshrc, 01-p10k.zsh, 02-plugins.zsh, etc.
-local n=0
-for file in "$DOTFILES"/[0-9]*-*.zsh(N); do
-    source "$file"
-    n=$((n + 1))
-done
-echo "Sourced $n files from $DOTFILES"
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
@@ -33,3 +11,18 @@ fi
 source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
+
+# Load a few important annexes, without Turbo
+# (this is currently required for annexes)
+zinit light-mode for \
+    zdharma-continuum/zinit-annex-as-monitor \
+    zdharma-continuum/zinit-annex-bin-gem-node \
+    zdharma-continuum/zinit-annex-patch-dl \
+    zdharma-continuum/zinit-annex-rust
+
+### End of Zinit's installer chunk
+
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
+[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+source "${ZINIT_HOME}/zinit.zsh"
